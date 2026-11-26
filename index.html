@@ -161,7 +161,7 @@ scene.background = new THREE.Color(C.bg);
 scene.fog = new THREE.Fog(C.bg, 13, 30);
 
 const camera = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, .1, 100);
-camera.position.set(8.5, 5.4, 9.5);
+camera.position.set(5.6, 3.4, 6.8);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 1.4, -1);
@@ -174,10 +174,14 @@ controls.minPolarAngle = .12;
 controls.enablePan = false;
 
 /* ================= lights ================= */
-scene.add(new THREE.AmbientLight(0x24304d, 1.5));
-const moon = new THREE.DirectionalLight(0x8ab4f8, .55);
+scene.add(new THREE.AmbientLight(0x33415e, 2.4));
+scene.add(new THREE.HemisphereLight(0x25304d, 0x0a0e1a, .9));
+const moon = new THREE.DirectionalLight(0x8ab4f8, .85);
 moon.position.set(4, 7, 5);
 scene.add(moon);
+const deskFill = new THREE.PointLight(0x9db4e8, 3, 9, 2);
+deskFill.position.set(0, 3.6, -.5);
+scene.add(deskFill);
 
 const lampLight = new THREE.PointLight(C.accent, 14, 7.5, 2);
 lampLight.position.set(-3.55, 2.05, -2.9);
@@ -199,12 +203,12 @@ function box(w,h,d,color,x,y,z, rough, metal){
 }
 
 /* ================= room shell ================= */
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(11,9), mat(0x0c1122, .95));
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(11,9), mat(0x111830, .95));
 floor.rotation.x = -Math.PI/2; floor.receiveShadow = true;
 scene.add(floor);
 
 function wall(w,h,x,y,z,ry){
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(w,h), mat(C.bgSoft, .95));
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w,h), mat(0x131a33, .95));
   m.position.set(x,y,z); m.rotation.y = ry; m.receiveShadow = true;
   scene.add(m);
 }
@@ -391,8 +395,15 @@ const VIEWS = {
   about:    {pos:[-2.7,2.35,-1.6],look:[-2.7,2.45,-4.4]},
   contact:  {pos:[1.5,1.8,-1.2], look:[1.05,1.1,-2.85]},
 };
-let fly = null;
-function flyTo(v){ fly = {pos:new THREE.Vector3(...v.pos), look:new THREE.Vector3(...v.look)}; }
+let fly = null, flyTimer = null;
+function flyTo(v){
+  fly = {pos:new THREE.Vector3(...v.pos), look:new THREE.Vector3(...v.look)};
+  clearTimeout(flyTimer);
+  flyTimer = setTimeout(() => {
+    if (!fly) return;
+    camera.position.copy(fly.pos); controls.target.copy(fly.look); fly = null;
+  }, 1600);
+}
 
 const ray = new THREE.Raycaster();
 const ptr = new THREE.Vector2(-2,-2);
@@ -411,11 +422,31 @@ function setGlow(key, on){
   });
 }
 
+function updateHover(){
+  ray.setFromCamera(ptr, camera);
+  const hit = ray.intersectObjects(hotMeshes, false)[0];
+  const key = hit ? hit.object.userData.key : null;
+  if (key !== hoveredKey){
+    if (hoveredKey) setGlow(hoveredKey, false);
+    if (key){
+      setGlow(key, true);
+      const h = HOTSPOTS.find(x => x.key === key);
+      tooltip.innerHTML = `<b>${h.tip}</b> — click ${h.label}`;
+      tooltip.style.display = 'block';
+      hint.classList.add('gone');
+    } else {
+      tooltip.style.display = 'none';
+    }
+    hoveredKey = key;
+    document.body.style.cursor = key ? 'pointer' : 'default';
+  }
+}
 addEventListener('pointermove', e => {
   ptr.x = (e.clientX/innerWidth)*2-1;
   ptr.y = -(e.clientY/innerHeight)*2+1;
   tooltip.style.left = (e.clientX+16)+'px';
   tooltip.style.top  = (e.clientY+10)+'px';
+  updateHover();
 });
 
 let downAt = null;
@@ -519,24 +550,6 @@ function animate(){
     controls.target.lerp(fly.look, .055);
     if (camera.position.distanceTo(fly.pos) < .05) fly = null;
   }
-  // hover raycast
-  ray.setFromCamera(ptr, camera);
-  const hit = ray.intersectObjects(hotMeshes, false)[0];
-  const key = hit ? hit.object.userData.key : null;
-  if (key !== hoveredKey){
-    if (hoveredKey) setGlow(hoveredKey, false);
-    if (key){
-      setGlow(key, true);
-      const h = HOTSPOTS.find(x => x.key === key);
-      tooltip.innerHTML = `<b>${h.tip}</b> — click ${h.label}`;
-      tooltip.style.display = 'block';
-      hint.classList.add('gone');
-    } else {
-      tooltip.style.display = 'none';
-    }
-    hoveredKey = key;
-    document.body.style.cursor = key ? 'pointer' : 'default';
-  }
   // gentle life
   lampLight.intensity = 14 + Math.sin(t*7)*.5 + Math.sin(t*13.7)*.3;
   screenGlow.intensity = 5 + Math.sin(t*2.2)*.8;
@@ -550,11 +563,13 @@ function animate(){
   if (firstFrame){
     firstFrame = false;
     document.getElementById('loader').classList.add('done');
-    flyTo(VIEWS.home);
     setTimeout(() => hint.classList.add('gone'), 9000);
   }
 }
 animate();
+
+// debug / deep-link handle
+window.__room = {camera, controls, openSection, VIEWS, THREE};
 
 addEventListener('resize', () => {
   camera.aspect = innerWidth/innerHeight;
