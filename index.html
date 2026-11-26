@@ -450,7 +450,12 @@ addEventListener('pointermove', e => {
 });
 
 let downAt = null;
-addEventListener('pointerdown', e => { downAt = {x:e.clientX, y:e.clientY, key:hoveredKey}; });
+addEventListener('pointerdown', e => {
+  ptr.x = (e.clientX/innerWidth)*2-1;
+  ptr.y = -(e.clientY/innerHeight)*2+1;
+  updateHover();
+  downAt = {x:e.clientX, y:e.clientY, key:hoveredKey};
+});
 addEventListener('pointerup', e => {
   if (!downAt) return;
   const moved = Math.hypot(e.clientX-downAt.x, e.clientY-downAt.y);
