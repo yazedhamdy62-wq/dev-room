@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Yazed | 3D Dev Room</title>
+<meta name="description" content="An interactive 3D developer room - Yazed's portfolio, reimagined as a space you can walk around in."/>
+<meta name="author" content="Yazed Hamdy"/>
+<meta name="theme-color" content="#0a0e1a"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Yazed Hamdy"/>
+<meta property="og:title" content="Yazed | 3D Dev Room"/>
+<meta property="og:description" content="An interactive 3D developer room. Look around, explore the desk, the shelf and the posters."/>
+<meta property="og:url" content="https://yazedhamdy62-wq.github.io/dev-room/"/>
+<meta property="og:image" content="https://yazedhamdy62-wq.github.io/dev-room/3-room-preview.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="675"/>
+<meta property="og:image:alt" content="3D developer room with a desk, bookshelf, carpet and posters"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Yazed | 3D Dev Room"/>
+<meta name="twitter:description" content="An interactive 3D developer room. Look around, explore the desk, the shelf and the posters."/>
+<meta name="twitter:image" content="https://yazedhamdy62-wq.github.io/dev-room/3-room-preview.png"/>
+<link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<div id="loader">
+  <div class="logo">Yazed<span>.</span></div>
+  <div class="bar"><i></i></div>
+  <p>Building the room…</p>
+</div>
+
+<nav>
+  <a class="brand" href="#" id="brandHome">Yazed<span>.</span></a>
+  <div class="links">
+    <a href="#" data-open="projects">Projects</a>
+    <a href="#" data-open="skills">Skills</a>
+    <a href="#" data-open="about">About</a>
+    <a href="#" data-open="contact">Contact</a>
+    <a class="home" href="https://yazedhamdy62-wq.github.io/portfolio/" target="_blank" rel="noopener">Main portfolio ↗</a>
+  </div>
+</nav>
+
+<div id="hint"><b>Drag</b> look &nbsp;·&nbsp; <b>Scroll</b> zoom &nbsp;·&nbsp; <b>WASD</b> walk &nbsp;·&nbsp; <b>Click</b> an object &nbsp;·&nbsp; <b>Double-click</b> to go there</div>
+<div id="tooltip"></div>
+<div id="backdrop"></div>
+<div id="panel"><button class="close" aria-label="Close">×</button><div id="panelBody"></div></div>
+
+<canvas id="scene"></canvas>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
